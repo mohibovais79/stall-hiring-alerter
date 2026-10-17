@@ -38,3 +38,8 @@
   import. analyze() gains aliases/status support, inactive bucket, per-row
   normalizations list; report counts inactive. Corrected ac9_2 expectation
   14->15 days (my arithmetic) before first run.
+2026-10-17 | S10 | DONE | AC10.1-10.6 | 7 tests added, all passing. New state.py:
+  JSON state {cid: {last_chased, stage}}, temp+os.replace atomic writes,
+  StateError on corrupt (never overwrites). analyze() partitions flagged into
+  'snoozed' when last_chased within window at same stage; CLI gains --state,
+  --snooze-window, --mark-chased. Snooze window is strict (<N days).

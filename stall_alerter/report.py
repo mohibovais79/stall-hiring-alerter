@@ -46,5 +46,12 @@ def render(analysis):
         _table(analysis.flagged, FLAGGED_COLUMNS),
         "REJECTED",
         _table(analysis.rejected, REJECTED_COLUMNS),
+        "SNOOZED",
+        _table(_df_or_empty(analysis.snoozed),
+               ["candidate_id", "name", "stage", "reason"]),
     ]
     return "\n".join(out)
+
+
+def _df_or_empty(df):
+    return df if df is not None else pd.DataFrame()

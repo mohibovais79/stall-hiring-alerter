@@ -6,6 +6,7 @@ import pandas as pd
 from .constants import COLUMNS, DEFAULT_ACTIONS, STAGE_ORDER  # noqa: F401
 from .drafts import draft_for
 from .normalize import is_inactive, normalize_stage, parse_stage_entered
+from .state import snooze_reason
 from .summary import summarize
 
 
@@ -15,11 +16,13 @@ class Analysis:
     rejected: pd.DataFrame
     rows_read: int
     inactive: pd.DataFrame = None
+    snoozed: pd.DataFrame = None
     summary: object = None
 
 
 def analyze(df, today, threshold=None, stage_thresholds=None,
-            action_rules=None, llm=None, aliases=None,
+            action_rules=None, llm=None, aliases=None, state=None,
+            snooze_window_days=3,
             bottleneck_min_count=3, bottleneck_min_pct=0.5):
     """Validate and normalise rows, then flag and rank stalled candidates."""
     rejected = []
@@ -58,6 +61,17 @@ def analyze(df, today, threshold=None, stage_thresholds=None,
     rejected_df = pd.DataFrame(rejected)
     flagged = flag_stalled(kept, today, threshold, stage_thresholds)
 
+    snoozed = []
+    if state:
+        kept_rows = []
+        for rec in flagged.to_dict("records"):
+            reason = snooze_reason(rec, state, today, snooze_window_days)
+            if reason:
+                snoozed.append({**rec, "reason": reason})
+            else:
+                kept_rows.append(rec)
+        flagged = pd.DataFrame(kept_rows, columns=flagged.columns)
+
     rules = action_rules if action_rules is not None else DEFAULT_ACTIONS
     missing = sorted(set(flagged["stage"]) - set(rules))
     if missing:
@@ -72,7 +86,7 @@ def analyze(df, today, threshold=None, stage_thresholds=None,
 
     return Analysis(
         flagged=flagged, rejected=rejected_df, rows_read=len(df),
-        inactive=pd.DataFrame(inactive),
+        inactive=pd.DataFrame(inactive), snoozed=pd.DataFrame(snoozed),
         summary=summarize(flagged, bottleneck_min_count, bottleneck_min_pct),
     )
 
