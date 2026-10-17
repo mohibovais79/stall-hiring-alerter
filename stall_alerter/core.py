@@ -3,6 +3,8 @@ from dataclasses import dataclass, field
 
 import pandas as pd
 
+from .drafts import draft_for
+
 STAGE_ORDER = ["Applied", "Screen", "Interview", "Final", "Offer"]
 COLUMNS = ["candidate_id", "name", "role", "stage", "stage_entered_date", "owner"]
 
@@ -22,7 +24,8 @@ class Analysis:
     rows_read: int
 
 
-def analyze(df, today, threshold=None, stage_thresholds=None, action_rules=None):
+def analyze(df, today, threshold=None, stage_thresholds=None,
+            action_rules=None, llm=None):
     """Validate rows, then flag and rank the stalled candidates."""
     rejected = []
     valid = []
@@ -57,6 +60,12 @@ def analyze(df, today, threshold=None, stage_thresholds=None, action_rules=None)
     if missing:
         raise ValueError(f"no action rule for stage(s): {', '.join(missing)}")
     flagged["action"] = flagged["stage"].map(rules)
+
+    drafts = [draft_for(r, client=llm) for r in flagged.to_dict("records")]
+    flagged["draft_text"] = [d.text for d in drafts]
+    flagged["draft_source"] = [d.source for d in drafts]
+    flagged["draft_to"] = [d.addressed_to for d in drafts]
+    flagged["draft_status"] = [d.status for d in drafts]
 
     return Analysis(flagged=flagged, rejected=rejected_df, rows_read=len(df))
 

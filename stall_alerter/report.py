@@ -4,6 +4,7 @@ import pandas as pd
 FLAGGED_COLUMNS = [
     "candidate_id", "name", "role", "stage",
     "days_in_stage", "days_overdue", "reason", "action",
+    "draft_source", "draft_status", "draft_text",
 ]
 REJECTED_COLUMNS = ["candidate_id", "name", "stage", "reason"]
 

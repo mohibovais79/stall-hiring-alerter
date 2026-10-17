@@ -25,3 +25,7 @@
   (argparse: csv path, --threshold, --stage-threshold STAGE=N, --output,
   --today), report.py renders the terminal table, console script
   'stall-alerter' registered via hatchling build config.
+2026-10-17 | S7 | DONE | AC7.1-7.7 | 7 tests added, all passing. New drafts.py:
+  LLMClient protocol (complete(prompt)), draft_for() with template fallback on
+  exception/empty/>80-word output; drafts always attached (client=None ->
+  template). Fixed a tautological assert in test_ac7_7 before first run.
