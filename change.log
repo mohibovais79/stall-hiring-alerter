@@ -1,0 +1,4 @@
+2026-10-17 | PROCESS | CHANGE | - | Test-approval gates relaxed: AI proposes and
+  self-approves tests per story, works the full build order autonomously, user
+  reviews at end. Commits must not credit AI as co-author. directive.md updated
+  to v2. Reason: user instruction "develop end to end ... i will review at end".
