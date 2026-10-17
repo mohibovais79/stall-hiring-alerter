@@ -1,7 +1,49 @@
 """Stall detection and ranking."""
+from dataclasses import dataclass, field
+
 import pandas as pd
 
 STAGE_ORDER = ["Applied", "Screen", "Interview", "Final", "Offer"]
+COLUMNS = ["candidate_id", "name", "role", "stage", "stage_entered_date", "owner"]
+
+
+@dataclass
+class Analysis:
+    flagged: pd.DataFrame
+    rejected: pd.DataFrame
+    rows_read: int
+
+
+def analyze(df, today, threshold=None, stage_thresholds=None):
+    """Validate rows, then flag and rank the stalled candidates."""
+    rejected = []
+    valid = []
+    for row in df.to_dict("records"):
+        entered = pd.to_datetime(row.get("stage_entered_date"), errors="coerce")
+        if pd.isna(entered):
+            rejected.append({**row, "reason": "missing or malformed date"})
+            continue
+        if row.get("stage") not in STAGE_ORDER:
+            rejected.append({**row, "reason": f"unknown stage {row.get('stage')!r}"})
+            continue
+        if entered.date() > today:
+            rejected.append({**row, "reason": "stage_entered_date in the future"})
+            continue
+        valid.append({**row, "stage_entered_date": entered})
+
+    # Duplicates: keep the row with the most recent stage_entered_date.
+    valid.sort(key=lambda r: (r["candidate_id"], r["stage_entered_date"]))
+    seen = {}
+    for row in valid:
+        cid = row["candidate_id"]
+        if cid in seen:
+            rejected.append({**seen[cid], "reason": "duplicate candidate_id"})
+        seen[cid] = row
+    kept = pd.DataFrame(list(seen.values()), columns=list(COLUMNS))
+
+    rejected_df = pd.DataFrame(rejected)
+    flagged = flag_stalled(kept, today, threshold, stage_thresholds)
+    return Analysis(flagged=flagged, rejected=rejected_df, rows_read=len(df))
 
 
 def flag_stalled(df, today, threshold=None, stage_thresholds=None):

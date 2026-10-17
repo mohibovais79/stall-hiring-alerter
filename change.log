@@ -14,3 +14,6 @@
 2026-10-17 | S4 | ISSUE | AC1.2-1.3 | First S4 implementation assigned a Series
   to an empty filtered DataFrame, creating NaN rows; existing S1 boundary tests
   caught it. Fixed by computing columns before filtering.
+2026-10-17 | S3 | DONE | AC3.1-3.5 | 5 tests added, all passing. New analyze()
+  wraps flag_stalled(): rejects malformed/future dates and unknown stages with
+  reasons, keeps most recent duplicate candidate_id, exposes rows_read count.
