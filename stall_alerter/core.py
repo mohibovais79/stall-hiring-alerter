@@ -23,7 +23,7 @@ class Analysis:
 
 def analyze(df, today, threshold=None, stage_thresholds=None,
             action_rules=None, llm=None, aliases=None, state=None,
-            snooze_window_days=3,
+            stage_order=STAGE_ORDER, snooze_window_days=3, word_limit=80,
             bottleneck_min_count=3, bottleneck_min_pct=0.5):
     """Validate and normalise rows, then flag and rank stalled candidates."""
     rejected = []
@@ -31,7 +31,7 @@ def analyze(df, today, threshold=None, stage_thresholds=None,
     valid = []
     for row in df.to_dict("records"):
         notes = []
-        stage, note = normalize_stage(row.get("stage"), aliases)
+        stage, note = normalize_stage(row.get("stage"), aliases, stage_order)
         if note:
             notes.append(note)
         entered, note = parse_stage_entered(row.get("stage_entered_date"))
@@ -61,7 +61,7 @@ def analyze(df, today, threshold=None, stage_thresholds=None,
 
     rejected_df = pd.DataFrame(rejected)
     enriched = _enrich(kept, today, threshold, stage_thresholds)
-    flagged = _rank(enriched)
+    flagged = _rank(enriched, stage_order)
 
     snoozed = []
     if state:
@@ -80,7 +80,8 @@ def analyze(df, today, threshold=None, stage_thresholds=None,
         raise ValueError(f"no action rule for stage(s): {', '.join(missing)}")
     flagged["action"] = flagged["stage"].map(rules)
 
-    drafts = [draft_for(r, client=llm) for r in flagged.to_dict("records")]
+    drafts = [draft_for(r, client=llm, word_limit=word_limit)
+              for r in flagged.to_dict("records")]
     flagged["draft_text"] = [d.text for d in drafts]
     flagged["draft_source"] = [d.source for d in drafts]
     flagged["draft_to"] = [d.addressed_to for d in drafts]
@@ -120,9 +121,10 @@ def analyze(df, today, threshold=None, stage_thresholds=None,
     )
 
 
-def flag_stalled(df, today, threshold=None, stage_thresholds=None):
+def flag_stalled(df, today, threshold=None, stage_thresholds=None,
+                 stage_order=STAGE_ORDER):
     """Return stalled rows ranked by days overdue, with a reason per row."""
-    return _rank(_enrich(df, today, threshold, stage_thresholds))
+    return _rank(_enrich(df, today, threshold, stage_thresholds), stage_order)
 
 
 def _enrich(df, today, threshold=None, stage_thresholds=None):
@@ -143,7 +145,7 @@ def _enrich(df, today, threshold=None, stage_thresholds=None):
     return df
 
 
-def _rank(enriched):
+def _rank(enriched, stage_order=STAGE_ORDER):
     """Filter to stalled rows and rank them."""
     out = enriched[enriched["days_in_stage"] > enriched["threshold"]].copy()
     out["reason"] = [
@@ -153,7 +155,7 @@ def _rank(enriched):
             out["days_overdue"], out["threshold"],
         )
     ]
-    stage_rank = out["stage"].map({s: i for i, s in enumerate(STAGE_ORDER)})
+    stage_rank = out["stage"].map({s: i for i, s in enumerate(stage_order)})
     out = out.assign(_stage_rank=stage_rank).sort_values(
         ["days_overdue", "_stage_rank", "candidate_id"],
         ascending=[False, False, True],

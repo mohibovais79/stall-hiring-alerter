@@ -30,17 +30,17 @@ def parse_stage_entered(raw):
     return ts.date(), note
 
 
-def normalize_stage(raw, aliases=None):
+def normalize_stage(raw, aliases=None, stage_order=STAGE_ORDER):
     """Return (canonical_stage, note); (None, None) when unknown."""
     text = str(raw).strip()
-    canonical = {s.lower(): s for s in STAGE_ORDER}
+    canonical = {s.lower(): s for s in stage_order}
     key = text.lower()
     if key in canonical:
         note = (f"stage '{raw}' normalised to '{canonical[key]}'"
                 if text != canonical[key] else None)
         return canonical[key], note
     alias_map = {str(k).strip().lower(): v for k, v in (aliases or {}).items()}
-    if key in alias_map and alias_map[key] in STAGE_ORDER:
+    if key in alias_map and alias_map[key] in stage_order:
         return alias_map[key], f"stage '{raw}' mapped via alias to '{alias_map[key]}'"
     return None, None
 
