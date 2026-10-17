@@ -2,3 +2,6 @@
   self-approves tests per story, works the full build order autonomously, user
   reviews at end. Commits must not credit AI as co-author. directive.md updated
   to v2. Reason: user instruction "develop end to end ... i will review at end".
+2026-10-17 | S1 | DONE | AC1.1-1.4 | 4 tests added, all passing. flag_stalled()
+  in stall_alerter/core.py filters a DataFrame by days-in-stage > threshold;
+  "today" passed in. Added pytest pythonpath config for local package import.
