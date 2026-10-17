@@ -6,8 +6,9 @@ from datetime import date
 import pandas as pd
 
 from .config import ConfigError, load_config
-from .core import COLUMNS, analyze
+from .core import analyze
 from .explain import explain
+from .io import load_csv
 from .normalize import normalize_stage
 from .report import render
 from .state import StateError, load_state, mark_chased
@@ -55,11 +56,9 @@ def main(argv=None):
         for warning in cfg_warnings:
             print(f"warning: {warning}", file=sys.stderr)
         today = date.fromisoformat(args.today) if args.today else date.today()
-        df = pd.read_csv(args.csv)
-        missing = [c for c in COLUMNS if c not in df.columns]
-        if missing:
-            raise ValueError(
-                f"missing required column(s): {', '.join(missing)}")
+        df = load_csv(args.csv)
+        if df.empty:
+            print(f"No data rows in {args.csv}.")
 
         if args.mark_chased:
             rows = df[df["candidate_id"].astype(str) == args.mark_chased]

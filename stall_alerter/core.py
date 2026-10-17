@@ -29,12 +29,21 @@ def analyze(df, today, threshold=None, stage_thresholds=None,
     rejected = []
     inactive = []
     valid = []
+    stage_cache = {}
+    date_cache = {}
     for row in df.to_dict("records"):
         notes = []
-        stage, note = normalize_stage(row.get("stage"), aliases, stage_order)
+        raw_stage = row.get("stage")
+        if raw_stage not in stage_cache:
+            stage_cache[raw_stage] = normalize_stage(raw_stage, aliases,
+                                                     stage_order)
+        stage, note = stage_cache[raw_stage]
         if note:
             notes.append(note)
-        entered, note = parse_stage_entered(row.get("stage_entered_date"))
+        raw_date = row.get("stage_entered_date")
+        if raw_date not in date_cache:
+            date_cache[raw_date] = parse_stage_entered(raw_date)
+        entered, note = date_cache[raw_date]
         if note:
             notes.append(note)
         row["normalizations"] = notes

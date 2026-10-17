@@ -55,3 +55,8 @@
 2026-10-17 | S12 | ISSUE | AC12.1 | Test data was wrong: entered 2026-10-06 is
   5 days < config threshold 7, so nothing flagged; caught by IndexError on
   empty flagged df. Changed entered date to 2026-10-01 (10 days > 7).
+2026-10-17 | S13 | DONE | AC13.1-13.5 | 5 tests added, all passing. New io.py:
+  load_csv() with utf-8-sig BOM handling and delimiter sniffing (, ; tab) from
+  the header line; missing columns and empty files give clear errors. Baseline
+  for 50k rows measured at 16.0s; memoising stage/date normalisation per raw
+  value cut it to ~2.1s, so the test limit is 15s.
