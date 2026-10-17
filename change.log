@@ -17,3 +17,7 @@
 2026-10-17 | S3 | DONE | AC3.1-3.5 | 5 tests added, all passing. New analyze()
   wraps flag_stalled(): rejects malformed/future dates and unknown stages with
   reasons, keeps most recent duplicate candidate_id, exposes rows_read count.
+2026-10-17 | S3 | DONE | AC3.1-3.5 | see prior entry (committed earlier)
+2026-10-17 | S5 | DONE | AC5.1-5.3 | 3 tests added, all passing. analyze() gains
+  action_rules (replaces DEFAULT_ACTIONS); a flagged stage with no mapping
+  raises ValueError naming it; 'action' column added to flagged rows.

@@ -6,6 +6,14 @@ import pandas as pd
 STAGE_ORDER = ["Applied", "Screen", "Interview", "Final", "Offer"]
 COLUMNS = ["candidate_id", "name", "role", "stage", "stage_entered_date", "owner"]
 
+DEFAULT_ACTIONS = {
+    "Applied": "Send a status update to the candidate",
+    "Screen": "Send a status update to the candidate",
+    "Interview": "Chase the owner for interview feedback",
+    "Final": "Chase the owner for a decision",
+    "Offer": "Chase the owner on the offer",
+}
+
 
 @dataclass
 class Analysis:
@@ -14,7 +22,7 @@ class Analysis:
     rows_read: int
 
 
-def analyze(df, today, threshold=None, stage_thresholds=None):
+def analyze(df, today, threshold=None, stage_thresholds=None, action_rules=None):
     """Validate rows, then flag and rank the stalled candidates."""
     rejected = []
     valid = []
@@ -43,6 +51,13 @@ def analyze(df, today, threshold=None, stage_thresholds=None):
 
     rejected_df = pd.DataFrame(rejected)
     flagged = flag_stalled(kept, today, threshold, stage_thresholds)
+
+    rules = action_rules if action_rules is not None else DEFAULT_ACTIONS
+    missing = sorted(set(flagged["stage"]) - set(rules))
+    if missing:
+        raise ValueError(f"no action rule for stage(s): {', '.join(missing)}")
+    flagged["action"] = flagged["stage"].map(rules)
+
     return Analysis(flagged=flagged, rejected=rejected_df, rows_read=len(df))
 
 
