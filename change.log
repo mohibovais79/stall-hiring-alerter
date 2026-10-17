@@ -21,3 +21,7 @@
 2026-10-17 | S5 | DONE | AC5.1-5.3 | 3 tests added, all passing. analyze() gains
   action_rules (replaces DEFAULT_ACTIONS); a flagged stage with no mapping
   raises ValueError naming it; 'action' column added to flagged rows.
+2026-10-17 | S6 | DONE | AC6.1-6.3 | 4 tests added, all passing. New cli.py
+  (argparse: csv path, --threshold, --stage-threshold STAGE=N, --output,
+  --today), report.py renders the terminal table, console script
+  'stall-alerter' registered via hatchling build config.
