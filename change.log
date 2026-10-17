@@ -5,3 +5,6 @@
 2026-10-17 | S1 | DONE | AC1.1-1.4 | 4 tests added, all passing. flag_stalled()
   in stall_alerter/core.py filters a DataFrame by days-in-stage > threshold;
   "today" passed in. Added pytest pythonpath config for local package import.
+2026-10-17 | S2 | DONE | AC2.1-2.3 | 3 tests added, all passing. flag_stalled()
+  gains stage_thresholds overrides; threshold=None with an uncovered stage
+  raises ValueError naming the stage(s).
