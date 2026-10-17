@@ -20,11 +20,26 @@ def _table(df, columns):
     return "\n".join(lines) + "\n"
 
 
+def _summary_lines(analysis):
+    s = analysis.summary
+    if s is None or s.total == 0:
+        return ["  No flagged candidates.\n"]
+    lines = []
+    for title, groups in (("By owner", s.owners), ("By stage", s.stages)):
+        lines.append(f"  {title}:")
+        for g in groups:
+            mark = "  BOTTLENECK" if g.bottleneck else ""
+            lines.append(f"    {g.name}: {g.count} ({g.share:.0%}){mark}")
+    return lines + [""]
+
+
 def render(analysis):
     out = [
         f"Read {analysis.rows_read} rows: "
         f"{len(analysis.flagged)} flagged, {len(analysis.rejected)} rejected",
         "",
+        "SUMMARY",
+        *_summary_lines(analysis),
         "FLAGGED",
         _table(analysis.flagged, FLAGGED_COLUMNS),
         "REJECTED",

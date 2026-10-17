@@ -4,6 +4,7 @@ from dataclasses import dataclass, field
 import pandas as pd
 
 from .drafts import draft_for
+from .summary import summarize
 
 STAGE_ORDER = ["Applied", "Screen", "Interview", "Final", "Offer"]
 COLUMNS = ["candidate_id", "name", "role", "stage", "stage_entered_date", "owner"]
@@ -22,10 +23,12 @@ class Analysis:
     flagged: pd.DataFrame
     rejected: pd.DataFrame
     rows_read: int
+    summary: object = None
 
 
 def analyze(df, today, threshold=None, stage_thresholds=None,
-            action_rules=None, llm=None):
+            action_rules=None, llm=None,
+            bottleneck_min_count=3, bottleneck_min_pct=0.5):
     """Validate rows, then flag and rank the stalled candidates."""
     rejected = []
     valid = []
@@ -67,7 +70,10 @@ def analyze(df, today, threshold=None, stage_thresholds=None,
     flagged["draft_to"] = [d.addressed_to for d in drafts]
     flagged["draft_status"] = [d.status for d in drafts]
 
-    return Analysis(flagged=flagged, rejected=rejected_df, rows_read=len(df))
+    return Analysis(
+        flagged=flagged, rejected=rejected_df, rows_read=len(df),
+        summary=summarize(flagged, bottleneck_min_count, bottleneck_min_pct),
+    )
 
 
 def flag_stalled(df, today, threshold=None, stage_thresholds=None):

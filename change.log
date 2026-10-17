@@ -29,3 +29,6 @@
   LLMClient protocol (complete(prompt)), draft_for() with template fallback on
   exception/empty/>80-word output; drafts always attached (client=None ->
   template). Fixed a tautological assert in test_ac7_7 before first run.
+2026-10-17 | S8 | DONE | AC8.1-8.5 | 5 tests added, all passing. New summary.py:
+  summarize() counts flagged per owner/stage (count desc, name asc), marks
+  bottleneck at >=min_count or >=min_pct share; render() shows SUMMARY first.
