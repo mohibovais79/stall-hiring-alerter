@@ -43,3 +43,7 @@
   StateError on corrupt (never overwrites). analyze() partitions flagged into
   'snoozed' when last_chased within window at same stage; CLI gains --state,
   --snooze-window, --mark-chased. Snooze window is strict (<N days).
+2026-10-17 | S11 | DONE | AC11.1-11.5 | 5 tests added, all passing. Split
+  flag_stalled into _enrich (days/threshold+source/overdue) and _rank; analyze
+  builds per-candidate traces from that single enrichment (AC11.5). New
+  explain.py + --explain CLI flag; ranked rows get a 1-based 'rank' column.

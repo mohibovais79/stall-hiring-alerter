@@ -1,5 +1,5 @@
 """Stall detection and ranking."""
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 import pandas as pd
 
@@ -18,6 +18,7 @@ class Analysis:
     inactive: pd.DataFrame = None
     snoozed: pd.DataFrame = None
     summary: object = None
+    traces: dict = field(default_factory=dict)
 
 
 def analyze(df, today, threshold=None, stage_thresholds=None,
@@ -59,7 +60,8 @@ def analyze(df, today, threshold=None, stage_thresholds=None,
     kept = pd.DataFrame(list(seen.values()), columns=list(COLUMNS) + ["normalizations", "status"])
 
     rejected_df = pd.DataFrame(rejected)
-    flagged = flag_stalled(kept, today, threshold, stage_thresholds)
+    enriched = _enrich(kept, today, threshold, stage_thresholds)
+    flagged = _rank(enriched)
 
     snoozed = []
     if state:
@@ -84,15 +86,47 @@ def analyze(df, today, threshold=None, stage_thresholds=None,
     flagged["draft_to"] = [d.addressed_to for d in drafts]
     flagged["draft_status"] = [d.status for d in drafts]
 
+    # Per-candidate trace for --explain: built from the same enriched rows
+    # the ranking used, so the two can never disagree (AC11.5).
+    traces = {}
+    for rec in enriched.to_dict("records"):
+        reason = (f"{rec['days_in_stage']} days in {rec['stage']}, "
+                  f"under the {rec['threshold']}-day limit")
+        traces[str(rec["candidate_id"])] = {
+            "record": rec, "outcome": "under threshold", "reason": reason}
+    for i, rec in enumerate(flagged.to_dict("records")):
+        traces[str(rec["candidate_id"])] = {
+            "record": rec, "outcome": "flagged", "rank": i + 1}
+    for rec in snoozed:
+        traces[str(rec["candidate_id"])] = {
+            "record": rec, "outcome": "snoozed", "reason": rec["reason"]}
+    for row in inactive:
+        traces[str(row["candidate_id"])] = {
+            "record": row, "outcome": "inactive",
+            "reason": f"status '{row.get('status')}'"}
+    for row in rejected:
+        cid = str(row["candidate_id"])
+        if cid in traces:
+            traces[cid].setdefault("rejected_rows", []).append(row["reason"])
+        else:
+            traces[cid] = {"record": row, "outcome": "rejected",
+                           "reason": row["reason"]}
+
     return Analysis(
         flagged=flagged, rejected=rejected_df, rows_read=len(df),
         inactive=pd.DataFrame(inactive), snoozed=pd.DataFrame(snoozed),
         summary=summarize(flagged, bottleneck_min_count, bottleneck_min_pct),
+        traces=traces,
     )
 
 
 def flag_stalled(df, today, threshold=None, stage_thresholds=None):
     """Return stalled rows ranked by days overdue, with a reason per row."""
+    return _rank(_enrich(df, today, threshold, stage_thresholds))
+
+
+def _enrich(df, today, threshold=None, stage_thresholds=None):
+    """Add days_in_stage, threshold (+source) and days_overdue columns."""
     stage_thresholds = stage_thresholds or {}
     if threshold is None:
         missing = sorted(set(df["stage"]) - set(stage_thresholds))
@@ -101,11 +135,17 @@ def flag_stalled(df, today, threshold=None, stage_thresholds=None):
 
     df = df.copy()
     df["threshold"] = df["stage"].map(lambda s: stage_thresholds.get(s, threshold))
+    df["threshold_source"] = df["stage"].map(
+        lambda s: "stage override" if s in stage_thresholds else "default")
     entered = pd.to_datetime(df["stage_entered_date"])
     df["days_in_stage"] = (pd.Timestamp(today) - entered).dt.days
+    df["days_overdue"] = df["days_in_stage"] - df["threshold"]
+    return df
 
-    out = df[df["days_in_stage"] > df["threshold"]].copy()
-    out["days_overdue"] = out["days_in_stage"] - out["threshold"]
+
+def _rank(enriched):
+    """Filter to stalled rows and rank them."""
+    out = enriched[enriched["days_in_stage"] > enriched["threshold"]].copy()
     out["reason"] = [
         f"{d} days in {s}, {o} over the {t}-day limit"
         for d, s, o, t in zip(
@@ -117,5 +157,6 @@ def flag_stalled(df, today, threshold=None, stage_thresholds=None):
     out = out.assign(_stage_rank=stage_rank).sort_values(
         ["days_overdue", "_stage_rank", "candidate_id"],
         ascending=[False, False, True],
-    )
-    return out.drop(columns="_stage_rank").reset_index(drop=True)
+    ).drop(columns="_stage_rank").reset_index(drop=True)
+    out["rank"] = range(1, len(out) + 1)
+    return out

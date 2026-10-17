@@ -6,6 +6,7 @@ from datetime import date
 import pandas as pd
 
 from .core import COLUMNS, analyze
+from .explain import explain
 from .normalize import normalize_stage
 from .report import render
 from .state import StateError, load_state, mark_chased
@@ -41,6 +42,8 @@ def main(argv=None):
                         help="days a chased candidate stays snoozed")
     parser.add_argument("--mark-chased", metavar="CANDIDATE_ID",
                         help="record a candidate as chased today and exit")
+    parser.add_argument("--explain", metavar="CANDIDATE_ID",
+                        help="explain one candidate's result and exit")
     args = parser.parse_args(argv)
 
     try:
@@ -73,6 +76,14 @@ def main(argv=None):
     except (ValueError, KeyError, StateError, pd.errors.ParserError) as e:
         print(f"error: {e}", file=sys.stderr)
         return 2
+
+    if args.explain:
+        try:
+            print(explain(analysis, args.explain))
+        except ValueError as e:
+            print(f"error: {e}", file=sys.stderr)
+            return 2
+        return 0
 
     print(render(analysis))
     if args.output:
