@@ -1,21 +1,12 @@
 """Stall detection and ranking."""
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 import pandas as pd
 
+from .constants import COLUMNS, DEFAULT_ACTIONS, STAGE_ORDER  # noqa: F401
 from .drafts import draft_for
+from .normalize import is_inactive, normalize_stage, parse_stage_entered
 from .summary import summarize
-
-STAGE_ORDER = ["Applied", "Screen", "Interview", "Final", "Offer"]
-COLUMNS = ["candidate_id", "name", "role", "stage", "stage_entered_date", "owner"]
-
-DEFAULT_ACTIONS = {
-    "Applied": "Send a status update to the candidate",
-    "Screen": "Send a status update to the candidate",
-    "Interview": "Chase the owner for interview feedback",
-    "Final": "Chase the owner for a decision",
-    "Offer": "Chase the owner on the offer",
-}
 
 
 @dataclass
@@ -23,27 +14,36 @@ class Analysis:
     flagged: pd.DataFrame
     rejected: pd.DataFrame
     rows_read: int
+    inactive: pd.DataFrame = None
     summary: object = None
 
 
 def analyze(df, today, threshold=None, stage_thresholds=None,
-            action_rules=None, llm=None,
+            action_rules=None, llm=None, aliases=None,
             bottleneck_min_count=3, bottleneck_min_pct=0.5):
-    """Validate rows, then flag and rank the stalled candidates."""
+    """Validate and normalise rows, then flag and rank stalled candidates."""
     rejected = []
+    inactive = []
     valid = []
     for row in df.to_dict("records"):
-        entered = pd.to_datetime(row.get("stage_entered_date"), errors="coerce")
-        if pd.isna(entered):
-            rejected.append({**row, "reason": "missing or malformed date"})
-            continue
-        if row.get("stage") not in STAGE_ORDER:
+        notes = []
+        stage, note = normalize_stage(row.get("stage"), aliases)
+        if note:
+            notes.append(note)
+        entered, note = parse_stage_entered(row.get("stage_entered_date"))
+        if note:
+            notes.append(note)
+        row["normalizations"] = notes
+        if stage is None:
             rejected.append({**row, "reason": f"unknown stage {row.get('stage')!r}"})
-            continue
-        if entered.date() > today:
+        elif entered is None:
+            rejected.append({**row, "reason": "missing or malformed date"})
+        elif entered > today:
             rejected.append({**row, "reason": "stage_entered_date in the future"})
-            continue
-        valid.append({**row, "stage_entered_date": entered})
+        elif is_inactive(row.get("status")):
+            inactive.append(row)
+        else:
+            valid.append({**row, "stage": stage, "stage_entered_date": entered})
 
     # Duplicates: keep the row with the most recent stage_entered_date.
     valid.sort(key=lambda r: (r["candidate_id"], r["stage_entered_date"]))
@@ -53,7 +53,7 @@ def analyze(df, today, threshold=None, stage_thresholds=None,
         if cid in seen:
             rejected.append({**seen[cid], "reason": "duplicate candidate_id"})
         seen[cid] = row
-    kept = pd.DataFrame(list(seen.values()), columns=list(COLUMNS))
+    kept = pd.DataFrame(list(seen.values()), columns=list(COLUMNS) + ["normalizations", "status"])
 
     rejected_df = pd.DataFrame(rejected)
     flagged = flag_stalled(kept, today, threshold, stage_thresholds)
@@ -72,6 +72,7 @@ def analyze(df, today, threshold=None, stage_thresholds=None,
 
     return Analysis(
         flagged=flagged, rejected=rejected_df, rows_read=len(df),
+        inactive=pd.DataFrame(inactive),
         summary=summarize(flagged, bottleneck_min_count, bottleneck_min_pct),
     )
 

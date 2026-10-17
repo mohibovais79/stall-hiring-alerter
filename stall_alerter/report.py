@@ -34,9 +34,11 @@ def _summary_lines(analysis):
 
 
 def render(analysis):
+    inactive = analysis.inactive if analysis.inactive is not None else []
     out = [
         f"Read {analysis.rows_read} rows: "
-        f"{len(analysis.flagged)} flagged, {len(analysis.rejected)} rejected",
+        f"{len(analysis.flagged)} flagged, {len(analysis.rejected)} rejected, "
+        f"{len(inactive)} inactive",
         "",
         "SUMMARY",
         *_summary_lines(analysis),

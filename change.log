@@ -32,3 +32,9 @@
 2026-10-17 | S8 | DONE | AC8.1-8.5 | 5 tests added, all passing. New summary.py:
   summarize() counts flagged per owner/stage (count desc, name asc), marks
   bottleneck at >=min_count or >=min_pct share; render() shows SUMMARY first.
+2026-10-17 | S9 | DONE | AC9.1-9.6 | 6 tests added, all passing. New normalize.py
+  (day-first slash dates documented; ISO timestamps -> UTC date; case/trim +
+  alias stage mapping; inactive status set) + constants.py to avoid a circular
+  import. analyze() gains aliases/status support, inactive bucket, per-row
+  normalizations list; report counts inactive. Corrected ac9_2 expectation
+  14->15 days (my arithmetic) before first run.
