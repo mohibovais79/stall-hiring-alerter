@@ -77,3 +77,13 @@
   (as pytest's capsys does, which is why S13's existing tests didn't catch
   it). Flagging for your decision: fix now under which story, or accept as
   a known console-encoding limitation.
+2026-10-18 | DOCS | DONE | - | Added docs/usage.md (12 sections): setup, input
+  contract and date/stage rules, CLI reference, report layout, config file
+  with validation, chase tracking, --explain, data-problem table, troubleshooting,
+  test instructions, known limitations. Command behaviour checked against the
+  CLI before writing: --mark-chased and --explain unknown-ID errors, bad
+  --stage-threshold value message, lowercase stage override ignored, and
+  --explain outcome for rejected/inactive rows. Documented gotchas, not fixed:
+  lowercase --stage-threshold silently ignored; int() error text does not name
+  the option. Document is docs-only; no code changed.
+
