@@ -60,3 +60,20 @@
   the header line; missing columns and empty files give clear errors. Baseline
   for 50k rows measured at 16.0s; memoising stage/date normalisation per raw
   value cut it to ~2.1s, so the test limit is 15s.
+2026-10-18 | DATA | DONE | - | Added data/ sample dataset for manual/demo use
+  (not part of pytest suite): hiring_board.csv (45 rows covering every stage,
+  every S3 rejection reason, every S9 normalisation case, all 4 inactive
+  statuses, duplicates, non-ASCII and comma-in-name fields, owner/stage
+  distributions sized to trip S8 bottleneck thresholds), stall-alerter.toml,
+  state.json (snoozed / expired-snooze / cleared-by-stage-change cases for
+  S10), plus edge_*.csv/.json fixtures for S13 file-handling scenarios.
+  Verified by running the CLI against every file (default thresholds, with
+  --config, with --state, --explain for flagged/inactive candidates, and
+  each edge file) and by re-running the full suite (63 passed, unchanged).
+  ISSUE found (not fixed, no story covers it): report.py/explain.py print()
+  non-ASCII text (e.g. the dataset's C037) directly to stdout; on a Windows
+  terminal using a legacy code page (cp1252) this raises UnicodeEncodeError.
+  Works fine with PYTHONIOENCODING=utf-8 or when output is redirected/piped
+  (as pytest's capsys does, which is why S13's existing tests didn't catch
+  it). Flagging for your decision: fix now under which story, or accept as
+  a known console-encoding limitation.

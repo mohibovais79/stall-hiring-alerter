@@ -1,0 +1,24 @@
+# Example config for the sample dataset in data/hiring_board.csv
+default_threshold = 5
+
+[stage_thresholds]
+Applied = 7
+Screen = 5
+Interview = 5
+Final = 4
+Offer = 3
+
+[aliases]
+"Phone Screen" = "Screen"
+
+[action_rules]
+Applied = "Send a status update to the candidate"
+Screen = "Send a status update to the candidate"
+Interview = "Chase the owner for interview feedback"
+Final = "Chase the owner for a decision"
+Offer = "Chase the owner on the offer"
+
+snooze_window_days = 3
+bottleneck_min_count = 3
+bottleneck_min_pct = 0.3
+word_limit = 80

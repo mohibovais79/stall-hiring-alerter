@@ -1,0 +1,46 @@
+candidate_id,name,role,stage,stage_entered_date,owner,status,source_ats
+C001,Maria Gonzalez,Recruiter Ops,Applied,2026-10-01,jsmith,,Greenhouse
+C002,Daniel Osei,Sales Executive,Applied,2026-10-14,jsmith,,Greenhouse
+C003,Priya Nair,Software Engineer,Applied,2026-10-13,mgarcia,,Lever
+C004,Tom Richards,Data Analyst,Screen,2026-09-20,mgarcia,,Lever
+C005,Lucia Ferreira,Product Manager,Screen,2026-10-10,mgarcia,,Greenhouse
+C006,Hassan Ali,DevOps Engineer,Screen,2026-10-16,tlee,,
+C007,Grace Kim,Software Engineer,Interview,2026-10-01,jsmith,,Greenhouse
+C008,Ivan Petrov,UX Designer,Interview,2026-10-11,tlee,,Lever
+C009,Fatima Zahra,Marketing Specialist,Interview,2026-10-13,tlee,,
+C010,Noah Bennett,Data Analyst,Final,2026-10-05,akumar,,Greenhouse
+C011,Olivia Chen,Software Engineer,Final,2026-10-16,akumar,,
+C012,Ethan Brooks,Sales Executive,Offer,2026-10-14,akumar,,Lever
+C013,Sofia Rossi,Product Manager,Offer,2026-10-10,rpatel,,Greenhouse
+C014,Liam Walsh,Software Engineer,Offer,2026-10-17,rpatel,,
+C015,Aisha Mohammed,Data Analyst,Interview,2026-09-25,mgarcia,,Lever
+C015,Aisha Mohammed,Data Analyst,Interview,2026-10-09,mgarcia,,Lever
+C016,Viktor Novak,Software Engineer,Negotiation,2026-10-01,tlee,,
+C017,Clara Jensen,Data Analyst,Screen,,mgarcia,,
+C018,Marcus Webb,Product Manager,Screen,not-a-date,tlee,,
+C019,Nina Petrova,Sales Executive,Interview,2026-11-01,jsmith,,
+C020,Yusuf Demir,Software Engineer,Interview,05/10/2026,mgarcia,,
+C021,Elena Volkov,Data Analyst,Interview,2026-10-01T09:00:00+05:30,tlee,,
+C022,Ravi Shankar,UX Designer,Final,2026-10-15T23:30:00-03:00,akumar,,
+C023,Diego Fernandez,Software Engineer, interview ,2026-10-05,jsmith,,
+C024,Beatriz Lima,Data Analyst,Phone Screen,2026-10-01,mgarcia,,
+C025,Samuel Agyei,Software Engineer,Interview,2026-09-01,tlee,Hired,
+C026,Natasha Orlova,Data Analyst,Interview,2026-09-01,tlee,Rejected,
+C027,Jamal Carter,Product Manager,Screen,2026-09-15,mgarcia,Withdrawn,
+C028,Wei Zhang,Sales Executive,Offer,2026-09-01,akumar,On hold,
+C029,Esther Mbeki,Software Engineer,Interview,2026-10-01,jsmith,Active,
+C030,Johan Berg,Data Analyst,Interview,2026-10-02,tlee,,
+C031,Carmen Ruiz,Software Engineer,Interview,2026-10-01,jsmith,,
+C032,Victor Hugo,Product Manager,Offer,2026-09-01,rpatel,,
+C033,Amara Okafor,Marketing Specialist,Final,2026-10-10,akumar,,
+C034,Lars Eriksson,Software Engineer,Interview,2026-10-01,swong,,
+C035,Mei Lin,Data Analyst,Screen,2026-09-28,swong,,
+C036,Pedro Alves,Sales Executive,Offer,2026-10-10,swong,,
+C037,Zoë Müller 田中太郎,UX Designer,Screen,2026-10-01,tlee,,
+C038,"Smith, John",Software Engineer,Applied,2026-10-05,mgarcia,,
+C039,Rachel Adams,Recruiter Ops,Applied,2026-10-17,bchen,,
+C040,Kenji Sato,Data Analyst,Screen,2026-10-15,bchen,,
+C041,Omar Siddiqui,Software Engineer,Interview,2026-10-16,dkim,,
+C042,Isabella Conti,Product Manager,Final,2026-10-14,dkim,,
+C043,Lucas Meyer,Sales Executive,Offer,2026-10-16,dkim,,
+C044,Hannah Kessler,Software Engineer,Interview,2026-10-05,enelson,,

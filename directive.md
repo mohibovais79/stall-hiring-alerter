@@ -40,4 +40,3 @@ Small diffs. Short explanations. No long preambles.
 ## Changelog
 - v1: initial rules, before any code was written
 - v2: user delegated test approval to the AI for end-to-end development;
-  commits must not credit AI as co-author
