@@ -1,9 +1,16 @@
 """S6: Run it easily."""
 import pandas as pd
+import pytest
 
 from stall_alerter.cli import main
 
 COLUMNS = ["candidate_id", "name", "role", "stage", "stage_entered_date", "owner"]
+
+
+@pytest.fixture(autouse=True)
+def _isolate_reports(tmp_path, monkeypatch):
+    # S14 writes reports/ relative to the working directory; keep tests out of the repo.
+    monkeypatch.chdir(tmp_path)
 
 
 def write_csv(tmp_path, rows, name="board.csv"):

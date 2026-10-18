@@ -182,7 +182,27 @@ Acceptance criteria
 
 ---
 
+## S14: Keep a dated markdown report
+As a recruiter, I want each run saved as a markdown file named by date, so I
+can review and share past runs without re-running the tool.
+
+Acceptance criteria
+- AC14.1: Every normal run writes a markdown report to reports/YYYY-MM-DD.md,
+  using the --today date (or the current date). --mark-chased and --explain
+  runs do not write a report.
+- AC14.2: The --report-dir PATH option changes the output directory.
+- AC14.3: The report has a title with the date, a count line (rows read,
+  flagged, rejected, inactive), and sections for summary, flagged, rejected
+  and snoozed.
+- AC14.4: Flagged rows appear in the same rank order as the terminal report.
+- AC14.5: Pipe characters in cell text are escaped so tables do not break,
+  and the file is written as UTF-8.
+- AC14.6: A run with no flagged candidates still writes a report that says so.
+- AC14.7: Terminal output is unchanged by S14.
+
+---
+
 ## Build order
-S1, S2, S4, S3, S5, S6-s13. Each story goes through the full cycle in directive.md
+S1, S2, S4, S3, S5, S6-s13, S14. Each story goes through the full cycle in directive.md
 before the next one starts.
 

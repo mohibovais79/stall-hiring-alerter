@@ -87,3 +87,21 @@
   lowercase --stage-threshold silently ignored; int() error text does not name
   the option. Document is docs-only; no code changed.
 
+2026-10-18 | S14 | DONE | AC14.1-14.7 | 9 tests added (8 passing initially,
+  1 added later for the console-error ordering bug). New stall_alerter/
+  markdown_report.py writes reports/<today>.md with title, count line, Summary,
+  Flagged, Rejected and Snoozed sections; pipes escaped, UTF-8. cli.py gains
+  --report-dir (default: reports). Spec change: S14 added to stories.md before
+  tests. Test-only changes, both logged: test_s6.py and test_s13.py gained an
+  autouse fixture that chdirs to tmp_path, because the existing tests called
+  main() with no --report-dir and wrote reports/2026-10-11.md into the repo.
+  Imports pytest added to both files.
+2026-10-18 | S14 | ISSUE | AC14.1 | Report was not written when the terminal print
+  raised UnicodeEncodeError (cp1252 console, non-ASCII name C037). The report was
+  written after print(), so the crash skipped it. Caught by a new test that
+  makes rendering fail; it failed as expected before the fix. Fixed by writing
+  the report and CSV before printing to the terminal.
+2026-10-18 | S14 | NOTE | AC14.1 | test_ac14_1_explain_run_writes_no_report passed
+  before any code existed, because nothing wrote reports yet. It is a regression
+  guard, not a proof that the feature works. Flagging as the directive asks.
+

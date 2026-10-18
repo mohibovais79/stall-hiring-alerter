@@ -3,6 +3,7 @@ import time
 from datetime import date
 
 import pandas as pd
+import pytest
 
 from stall_alerter.cli import main
 from stall_alerter.core import analyze
@@ -10,6 +11,12 @@ from stall_alerter.io import load_csv
 
 COLUMNS = ["candidate_id", "name", "role", "stage", "stage_entered_date", "owner"]
 TODAY = date(2026, 10, 11)
+
+
+@pytest.fixture(autouse=True)
+def _isolate_reports(tmp_path, monkeypatch):
+    # S14 writes reports/ relative to the working directory; keep tests out of the repo.
+    monkeypatch.chdir(tmp_path)
 
 
 def row(candidate_id, stage="Interview", entered="2026-10-01", owner="rec1",

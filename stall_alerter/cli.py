@@ -9,6 +9,7 @@ from .config import ConfigError, load_config
 from .core import analyze
 from .explain import explain
 from .io import load_csv
+from .markdown_report import write_report
 from .normalize import normalize_stage
 from .report import render
 from .state import StateError, load_state, mark_chased
@@ -38,6 +39,9 @@ def main(argv=None):
                         help="per-stage threshold override, repeatable")
     parser.add_argument("--output", metavar="PATH",
                         help="also write the flagged list to this CSV")
+    parser.add_argument("--report-dir", metavar="PATH", default="reports",
+                        help="directory for the dated markdown report "
+                             "(default: %(default)s)")
     parser.add_argument("--today", metavar="YYYY-MM-DD",
                         help="override 'today' (default: current date)")
     parser.add_argument("--state", metavar="PATH",
@@ -103,9 +107,11 @@ def main(argv=None):
             return 2
         return 0
 
-    print(render(analysis))
+    # Write the file before printing, so a console encoding error cannot stop it.
+    write_report(analysis, today, args.report_dir)
     if args.output:
         analysis.flagged.to_csv(args.output, index=False)
+    print(render(analysis))
     return 0
 
 
