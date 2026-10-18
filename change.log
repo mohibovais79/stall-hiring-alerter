@@ -109,4 +109,12 @@
   naming, sections, pipe escaping, overwrite on same-day rerun, and which runs
   skip the report. Docs-only; no code or test changes. Behaviour described was
   taken from markdown_report.py and cli.py.
+2026-10-19 | DOCS | DONE | - | README.md was a single title line since the
+  initial commit; GitHub's preview was rendering it correctly, there was
+  nothing else in the file. Replaced with setup, quick start, input contract,
+  common commands, test instructions and project layout, linking to
+  docs/usage.md and stories.md. Docs-only; no code or test changes. Verified:
+  full suite still 72 passed after the change; data/state.json and
+  reports/2026-10-18.md, dirtied by manual CLI runs during this session, were
+  reverted with `git checkout --` before committing so only README.md changed.
 
