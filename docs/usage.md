@@ -112,6 +112,7 @@ stall-alerter CSV [options]
 | `--snooze-window N` | config value, else `3` | Days a chased candidate stays snoozed. |
 | `--mark-chased CANDIDATE_ID` | none | Record the candidate as chased today, then exit. |
 | `--explain CANDIDATE_ID` | none | Print one candidate's trace, then exit. |
+| `--report-dir PATH` | `reports` | Folder for the dated markdown report, named `<today>.md`. Created if missing. |
 
 Precedence: **command-line option > config file > built-in default.**
 
@@ -156,6 +157,33 @@ hidden from the flagged list, with a reason such as `chased 1 day ago`.
 
 Inactive candidates (status `Hired`, `Rejected`, `Withdrawn` or `On hold`)
 are counted in the header but not listed. Use `--explain` to see one.
+
+### 5.1 Markdown report
+
+Every normal run also writes a markdown report to `reports/<today>.md`, for
+example `reports/2026-10-18.md`. Use `--report-dir PATH` to write somewhere
+else:
+
+```powershell
+uv run stall-alerter data/hiring_board.csv --today 2026-10-18 --threshold 5 --report-dir out/reports
+```
+
+The file has the same content as the terminal report, in markdown form:
+
+- A title with the date, and a count line (rows read, flagged, rejected, inactive).
+- `## Summary`, `## Flagged`, `## Rejected` and `## Snoozed` sections. Empty
+  sections show `_None._`. A run with no flagged candidates says so.
+- Flagged rows in the same rank order as the terminal report.
+- Pipe characters in cell text are escaped (`\|`) so tables stay intact. The
+  file is UTF-8.
+
+Behaviour to be aware of:
+
+- A second run with the same `--today` date overwrites that day's report.
+  Use a different `--today` or `--report-dir` to keep both.
+- `--explain` and `--mark-chased` runs do not write a report.
+- The report is written before the terminal output is printed, so a console
+  encoding error (section 10) does not prevent it from being saved.
 
 ---
 

@@ -104,4 +104,9 @@
 2026-10-18 | S14 | NOTE | AC14.1 | test_ac14_1_explain_run_writes_no_report passed
   before any code existed, because nothing wrote reports yet. It is a regression
   guard, not a proof that the feature works. Flagging as the directive asks.
+2026-10-18 | DOCS | DONE | AC14.2, AC14.3 | docs/usage.md gains --report-dir in the
+  CLI reference table and a section 5.1 on the markdown report: location and
+  naming, sections, pipe escaping, overwrite on same-day rerun, and which runs
+  skip the report. Docs-only; no code or test changes. Behaviour described was
+  taken from markdown_report.py and cli.py.
 
